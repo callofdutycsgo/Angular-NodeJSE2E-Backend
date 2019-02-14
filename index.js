@@ -2,11 +2,14 @@
 
 const Hapi = require('hapi');
 const Inert = require('inert');
+const Joi = require('joi');
+
 
 //Create Server
 const server = Hapi.server({
     host: 'localhost',
-    port: 8080
+    port: 8080,
+    routes: { cors: true }
 });
 
 const provision = async () => {
@@ -16,6 +19,8 @@ const provision = async () => {
     console.log(`Server running at: ${server.info.uri}`);
 };
 provision();
+
+
 
 //Add Route to Server Requests
 //#1
@@ -40,4 +45,34 @@ server.route({
     }
 });
 
+server.route({
+    method: 'GET',
+    path: '/download',
+    handler: function (request, h) {
+        return h.file('./public/download.html');
+    }
+});
+
+server.route({
+    method: 'GET',
+    path: '/form',
+    handler: function (request, h) {
+        return h.file('./jsonDB.json');
+    }
+});
+
+
+server.route({
+    method: 'GET',
+    path: '/joi/{name}',
+    options: {
+        validate: {
+            params: {
+                name: Joi.string().min(3).max(10)
+            }
+        }
+    },
+    handler: function (request) {
+        return `Hello ${request.params.name}!`;    }
+});
 
